@@ -96,7 +96,8 @@
   (texto
    (letter) string)
   (texto
-   (letter (arbno (or letter digit "-" ":"))) string)))
+   (letter (arbno (or letter digit "-" ":"))) string)
+))
 
 ;----------Especificacion sintactica
 
@@ -110,9 +111,6 @@
     
     (expresion ("\"" texto "\"") cadena-lit)
 
-    (expresion ("false") false-exp)
-    
-    (expresion ("true") true-exp)
 
 
 
@@ -187,15 +185,16 @@
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; ESTRUCTURAS DE CONTROL ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;;;;;;;;;;;;;;;; Condicional IF ;;;;;;;;;;;;;;;;
-    (expresion ("Si" bool-exp "entonces" expresion "sino" expresion "finSi")
+    (expresion ("Si" expresion "entonces" expresion "sino" expresion "finSi")
                condicional-exp)
     
     ;;;;;;;;;;;;;;;; Begin ;;;;;;;;;;;;;;;;
     (expresion ("begin" expresion (arbno ";" expresion) "end")
                 begin-exp)
+
     
     ;;;;;;;;;;;;;;;; While ;;;;;;;;;;;;;;;;
-    (expresion ("while" bool-exp "do" expresion "done")
+    (expresion ("while" expresion "do" expresion "done")
                while-exp)
     
     ;;;;;;;;;;;;;;;; For ;;;;;;;;;;;;;;;;
@@ -207,10 +206,16 @@
 
     
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; EXPRESIONES BOOLANEAS ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-    (bool-exp ("[" expresion pred-prim expresion "]" )
+    (expresion ("false")
+               false-exp)
+    
+    (expresion ("true")
+               true-exp)
+    
+    (expresion ("[" expresion pred-prim expresion "]" )
                pred-prim-exp)
 
-    (bool-exp ("not" expresion)
+    (expresion ("not" expresion)
               oper-un-bool)
 
     ;;;;;;;;;;;;;;;; Primitivas boolaneas ;;;;;;;;;;;;;;;;
@@ -375,9 +380,11 @@
       
       (cadena-lit (cadena) cadena)
 
+      (false-exp () #f)
+
       (true-exp () #t)
       
-      (false-exp () #f)
+      (oper-un-bool (pred) (not (evaluar-expresion pred amb)))
 
 
 
@@ -485,7 +492,7 @@
       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Constructores de datos predefinidos ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
       ;;;;;;;;;; CONDICIONALES ;;;;;;;;;;
       (condicional-exp (test-exp true-exp false-exp)
-                       (if (evaluar-bool-exp test-exp amb)
+                       (if (evaluar-expresion test-exp amb)
                            (evaluar-expresion true-exp amb)
                            (evaluar-expresion false-exp amb)
                        ))
@@ -504,7 +511,7 @@
       ;;;;;;;;;; WHILE ;;;;;;;;;;
       (while-exp (bool-exp exp)
                   (let loop ((i 0))
-                   (when (evaluar-bool-exp bool-exp amb)
+                   (when (evaluar-expresion bool-exp amb)
                          (evaluar-expresion exp amb)
                          (loop (+ 1 i)))
                   ))
@@ -514,7 +521,7 @@
               (let ((ini (evaluar-expresion inicio amb))
                     (fin (evaluar-expresion final amb)))
                    (let loop ((i ini))
-                     (when (< i fin)
+                     (when (<= i fin)
                            (evaluar-expresion exp (ambiente-extendido (list id) (list i) amb))
                            (loop (+ 1 i))
                      ))))      
@@ -523,7 +530,13 @@
 
 
 
-      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Primitivas Generales ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+      ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Primitivas Generales ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+      ;;;;;;;;;; Boolaneas ;;;;;;;;;;
+      (pred-prim-exp (op1 pred-prim op2)
+                (let ((args (evaluar-operandos (list op1 op2) amb)))
+                       (aplicar-pred-prim pred-prim args)))
+      
       ;;;;;;;;;; Sin argumentos ;;;;;;;;;;
       (primapp-sin-arg-exp (primitiva-sin-arg)
                            '())
@@ -621,7 +634,7 @@
       (primitiva-cabeza    () (car arg))
       (primitiva-cola      () (cdr arg))
       (primitiva-es-vector () (vector? arg))
-      (primitiva-print     () (display arg))
+      (primitiva-print     () (begin (display arg) (newline)))
       (primitiva-is-reg    ()  (reg?  arg))
     )))
 
@@ -685,7 +698,7 @@
       (atributo-aristas        () (cadr exp1))
       (atributo-vecinos        () (vecinos (cadr exp1) exp2))
       (atributo-agregar-arista () (add-edge exp1 exp2))
-      (atributo-first          () (list (car exp1)))
+      (atributo-first          () (car exp1))
       (atributo-rest           () (cdr exp1))
       (atributo-emptyG?        () (null? exp1))
       )))
@@ -848,15 +861,6 @@
                 #f))))))
 
 ;----------Implementando booleanos
-
-(define evaluar-bool-exp
-  (lambda (bool amb)
-    (cases bool-exp bool
-      (pred-prim-exp (op1 pred-prim op2)
-                (let ((args (evaluar-operandos (list op1 op2) amb)))
-                       (aplicar-pred-prim pred-prim args)))
-      (oper-un-bool (pred)
-                    (not (evaluar-expresion pred amb))))))
 
 ;----------Implementando procedimientos
 
@@ -1070,4 +1074,18 @@
 
 
 ;----------Ejecutando el interpretador
-(interpretador)
+
+;(interpretador)
+
+
+
+
+
+
+
+
+
+
+
+
+
