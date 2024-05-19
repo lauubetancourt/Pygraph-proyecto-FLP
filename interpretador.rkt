@@ -1,4 +1,4 @@
-0#lang eopl
+#lang eopl
 
 ;------------------- Integrantes y repositorio ------------------
 
@@ -1157,21 +1157,39 @@
 
 
 
+
 ;Numeros
 (scan&parse "3")
 (scan&parse "3.14")
 (scan&parse "-2")
 (scan&parse "-2.3")
 
+;Primitivas Numeros
+(scan&parse "+(1,1)")
+(scan&parse "~(1,1)")
+(scan&parse "/(1,1)")
+(scan&parse "*(1,1)")
+(scan&parse "mod(1,1)")
+(scan&parse "add1(1)")
+(scan&parse "sub1(1)")
 
-;Primitivas Caracter
+
+
+
+;Caracter
 (scan&parse "a")
+
+
+
 
 
 ;Primitivas Cadenas
 (scan&parse "\"HolaMundo\"")
+
+;Primitivas Cadenas
 (scan&parse "concat(\"cadena\", \"hola\")")
 (scan&parse "longitud(\"hola\")")
+
 
 
 
@@ -1179,13 +1197,151 @@
 (scan&parse "print(@a)")
 
 
-;Expresion- false-exp
-(scan&parse "false")
 
-;Expresion- true-exp
+
+;Expresiones boolaneas
+(scan&parse "false")
 (scan&parse "true")
 
-(scan&parse "[10 > 2]")
+;Expresiones pred boolaneas
+(scan&parse "[10 >  2]")
+(scan&parse "[10 <  2]")
+(scan&parse "[10 >= 2]")
+(scan&parse "[10 <= 2]")
+(scan&parse "[10 == 2]")
+(scan&parse "[10 != 2]")
+(scan&parse "[[8 == 4] and [3 > 2]]")
+(scan&parse "[[8 == 4] or  [3 > 2]]")
+(scan&parse "not [10 >  2]")
 
 
 
+
+
+
+
+
+
+;Listas
+(scan&parse "list ()")
+(scan&parse "list (1,2,3)")
+(scan&parse "list (list (1,2,3) , list (2,2,2))")
+
+;Primitivas lista
+(scan&parse "vacio")
+(scan&parse "vacio?(vacio)")
+(scan&parse "vacio?(list(1,2,3))")
+(scan&parse "agregar-a-lista(list(1,2,3), 5)")
+(scan&parse "agregar-a-lista(list(1,2,3), list (5))")
+(scan&parse "lista?(list (1,2,3,4,5))")
+(scan&parse "lista?(2)")
+(scan&parse "cabeza(list (1,2,3,4,5))")
+(scan&parse "cola(list (1,2,3,4,5))")
+(scan&parse "append(list (1,2,3,4,5) , list(6,7,8))")
+
+
+
+
+;Listas
+(scan&parse "vector ()")
+(scan&parse "vector (1,2,3)")
+(scan&parse "vector (vector (1,2,3) , list (2,2,2))")
+
+;Primitivas lista
+(scan&parse "vector?(vacio)")
+(scan&parse "vector?(list(1,2,3))")
+(scan&parse "vector?(vector(1,2,3))")
+(scan&parse "agregar-a-vector(vector(1,2,3), 5)")
+(scan&parse "agregar-a-vector(vector(1,2,3), vector (5))")
+(scan&parse "ref-vector(vector (\"uno\",\"dos\",\"tres\"), 1)")
+(scan&parse "set-vector(vector (\"uno\",\"dos\",\"tres\"), 1 , \"cuatro\")")
+
+
+
+;Registros
+(scan&parse "reg (@a: 1, @b: 2, @c: 3, @d: 4, @e: 5)")
+
+;Primitivas registros
+(scan&parse "reg?(reg (@a: 1, @b: 2, @c: 3, @d: 4, @e: 5))")
+(scan&parse "crear-reg(reg (@a: 1, @b: 2, @b: 3), @c, 4 )")
+(scan&parse "ref-reg(reg (@a: 1, @b: 2, @b: 3), @b )")
+(scan&parse "set-reg(reg (@a: 1, @b: 2, @b: 3), @b, 4 )")
+
+
+;Secuencia Begin
+(scan&parse "begin
+               @a;
+               print(\"hola\");
+               var (@x = 5) {add1(@x)};
+               print(\"adios\");
+               *(4,3) end")
+
+;Condicional If
+(scan&parse "Si [10 > 2] entonces *(20, 2) sino /(20, 2)  finSi")
+(scan&parse "Si [10 == 2] entonces *(20, 2) sino /(20, 2)  finSi")
+
+;Iteracion for
+(scan&parse "for @i =1 to 10 do print(@i)done")
+
+;Iteracion while
+(scan&parse "var (@i = 1){while [@i <= 5] do begin print(@i);set @i = add1(@i) end done}")
+
+
+
+;Definicion Var
+(scan&parse "var (@x = 5) {add1(@x)}")
+(scan&parse "const (@x = 5) {@x}")
+(scan&parse "const (@x = 5) {begin set @x = 10; @x end}")
+
+
+(scan&parse "declarar-rec
+               @fact(@n) = Si [@n != 0]
+                   entonces *(@n , evaluar @fact(sub1(@n)) finEval)
+                    sino 1 finSi
+               en
+                 evaluar @fact(10) finEval")
+
+(scan&parse "var(
+               @sumar = procedimiento(@x, @y) haga
+               +(@x, @y) finProc
+            ){
+              evaluar @sumar(2,3) finEval
+            }")
+
+;Grafos
+;-vertices
+(scan&parse "vertices (1,2)")
+
+;-Aristas
+(scan&parse "aristas((1,2),(2,3),(1,3))")
+
+;-Grafo completo
+(scan&parse "grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3))")
+
+;Primitivas grafos
+;-Vertices
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).vertices())")
+
+;-aristas
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).aristas())")
+
+;-vecino
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).vecinos(1))")
+
+;-fisrt
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).vecinos(1).first())")
+
+;-rest
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).vecinos(1).rest())")
+
+;-agregar-arista
+(scan&parse "(grafo vertices (1,2,3,4) aristas((1,2),(2,4),(1,3)).agregar-arista(list(2,5)))")
+(scan&parse "(grafo vertices (1,2,3,4) aristas((1,2),(2,4),(1,3)).agregar-arista(list(2,4)))")
+
+;-Encadenamiento
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).vecinos(1).rest().first())")
+(scan&parse "(grafo vertices (1,2,3,4) aristas((1,2),(2,4),(1,3)).aristas().rest().first().first())")
+
+;-emptyG
+(scan&parse "(grafo vertices (1,2,3) aristas((1,2),(2,3),(1,3)).aristas().emptyG?())")
+(scan&parse "(grafo vertices (1,2,3) aristas ((1,2)).aristas().rest().emptyG?())")
