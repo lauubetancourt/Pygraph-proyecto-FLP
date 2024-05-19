@@ -1,4 +1,4 @@
-#lang eopl
+0#lang eopl
 
 ;------------------- Integrantes y repositorio ------------------
 
@@ -14,65 +14,141 @@
 
 ; 
 ; ; <programa> :=  <expresion>
-; ; 
 ; ;                un-programa (exp)
 ; ; 
 ; ; 
 ; ; <expresion> := <numero>
-; ; 
-; ;                numero-lit (num)
+; ;                numero-lit (num) 
+; ;
+; ;		:= <texto> 
+; ;		   caracter-lit (txy)
 ; ; 
 ; ;             := "\"" <texto> "\""
-; ; 
 ; ;                texto-lit (txt)
+; ;
+; ;		:= <false>
+; ;                false-exp (false)
+; ;
+; ; 		:= <true>
+; ;                true-exp (true)
 ; ; 
 ; ;             := <identificador>
-; ; 
 ; ;                var-exp (id)
+; ;
+; ; 		:= “var” “(“ (<identificador> “=” <expresion> “;”)+ “)” “{“ <expresion> “}”
+; ;	            variableVar-exp (ids exps body)
+; ;
+; ; 		:= “set” <identificador> “=” <expresion>
+; ;		   set-exp (id exp)
+; ;
+; ; 		:= “const” “(“ (<identificador> “=” <expresion> “;”)+ “)” “{“ <expresion> “}”
+; ;	            variableConst-exp (ids exps body)
+; ;
+; ;             := "procedimiento" (<identificador>*',') "haga" <expresion> "finProc"
+; ;                 procedimiento-exp (ids cuerpo)
+; ;
+; ;             := "declarar-rec" (<identificador> “(“ (<identificador> “,”)+ “)” “=” <expresion> “en” <expresion>
+; ;                 rec-exp (ids exps cuerpo)
+; ;
+; ;             := "evaluar" expresion (expresion ",")* "finEval"
+; ;                 app-exp (exp exps)  
 ; ; 
+; ;		:= “list” ( <expresion>* “,”)
+; ;                 list-exp (exps)
+; ;
+; ;		:= “vector” ( <expresion>* “,”)
+; ;                 vector-exp (exps)
+; ;
+; ;		:= “reg” ( (<identificador> : <expresion>)* “,”)
+; ;                 reg-exp (exps)
+; ;
+; ;		:= <primitiva-reg-bin> ( <expresion> , <identificador> ) 
+; ;		   primaapp-bin-reg-exp (prim exp id)
+; ;
+; ; 	                <primitiva-reg-bin> := ref-reg (primitiva-bin-reg)
+; ;
+; ;		:= <primitiva-reg-ter> ( <expresion> , <identificador> , <expresion>) 
+; ;		   primaapp-ter-reg-exp (prim exp1 id exp2)
+; ;
+; ; 	                <primitiva-reg-ter> := crear-reg (primitiva-crear-reg)
+; ; 				            := set-reg (primitiva-set-reg)
+; ;
 ; ;             := "Si" <expresion> "entonces" <expresion> "sino" <expresion> "finSI"
-; ; 
 ; ;                condicional-exp (test-exp true-exp false-exp)
 ; ; 
-; ;             := "declarar" (<identificador> = <expresion> (;)) { <expresion> }
+; ;             := “begin” <expresion>+ “,” “end”
+; ;                 begin-exp (exps)              
+; ;                
+; ; 	        := “while” <expresion> “do” <expresion> “done”
+; ;                while-exp (bool exp)
+; ;
+; ; 	        := “for” <identificador> “=” <expresion> “to” <expresion> “do” <expresion> “done” 
+; ;	           for-exp (id exp1 exp2 exp3)
+; ;
+; ; 	        := “[“ <expresion> <pred-prim>  <expresion> “]”
+; ;                 pred-prim-exp (op1 prim op2)
+; ;
+; ;		:= “not“ <expresion> oper-un-bool(exp)
 ; ; 
-; ;                variableLocal-exp (ids exps cuerpo)
-; ;                                  
-; ;             := "procedimiento" (<identificador>*',') "haga" <expresion> "finProc"
+; ; 	                  <pred-prim>  := > (pred-bigger)
+; ;		                       := <  pred-minor
+; ;		                       := >=  pred-bigger-equal
+; ;		                       := <=  pred-minor-equal
+; ;		                       := ==  pred-equal
+; ;		                       := !=  pred-not-equal
+; ;		                       := and pred-and
+; ;		                       := or pred-or
+; ;
+; ; 	        := <primitiva-sin-arg> primapp-sin-arg-exp (prim)
+; ;	                 <primitiva-sin-arg> := vacio primitiva-vacio
+; ;
+; ; 	        := <primitiva-unaria> (<expresion>) primapp-un-exp (prim exp)
+; ;	                 <primitiva-unaria> := longitud primitiva-longitud
+; ;	                                    := add1 primitiva-add1
+; ;	                                    := sub1 primitiva-sub1
+; ;	                                    := vacio? primitiva-es-vacio
+; ;	                                    := lista? primitiva-es-lista
+; ;	                                    := cabeza primitiva-cabeza
+; ;	                                    := cola primitiva-cola
+; ;	                                    := vector? primitiva-es-vector
+; ;	                                    := print primitiva-print
+; ;	                                    := reg? primitiva-is-reg
+; ;
+; ; 	         := <primitiva-binaria> (<expresion> , <expresion>) primapp-bin-exp (prim exp1 exp2)
+; ;	                 <primitiva-binaria> := + primitiva-suma
+; ;	                                     := ~ primitiva-resta
+; ;	                                     := / primitiva-div
+; ;	                                     := * primitiva-multi
+; ;	                                     := mod primitiva-mod
+; ;	                                     := concat primitiva-concat
+; ;	                                     := append primitiva-append
+; ;	                                     := agregar-a-lista primitiva-agregar-a-lista
+; ;	                                     := agregar-a-vector primitiva-agregar-a-vector
+; ;	                                     := ref-vector primitiva-ref-vector
+; ;
+; ; 	         := <primitiva-ternaria> (<expresion> , <expresion>, <expresion>) primapp-ter-exp (prim exp1 exp2 exp3)
+; ;	                 <primitiva-ternaria> := set-vector primitiva-set-vector
 ; ; 
-; ;               procedimiento-ex (ids cuerpo)
-; ;               
-; ;             :=  "evaluar" expresion (expresion ",")*  "finEval"
-; ; 
-; ;                 app-exp(exp exps)   
-; ; 
-; ;             := (<expresion> <primitiva-binaria> <expresion>)
-; ; 
-; ;                primapp-bin-exp (exp1 prim-binaria exp2)
-; ; 
-; ;             := <primitiva-unaria> (<expresion>)
-; ; 
-; ;                primapp-un-exp (prim-unaria exp)
-; ; 
-; ; 
-; ; 
-; ; <primitiva-binaria> :=  + (primitiva-suma)
-; ; 
-; ;                     :=  ~ (primitiva-resta)
-; ; 
-; ;                     :=  / (primitiva-div)
-; ; 
-; ;                     :=  * (primitiva-multi)
-; ; 
-; ;                     :=  concat (primitiva-concat)
-; ; 
-; ; 
-; ; 
-; ; <primitiva-unaria>:=  longitud (primitiva-longitud)
-; ; 
-; ;                   :=  add1 (primitiva-add1)
-; ; 
-; ;                   :=  sub1 (primitiva-sub1)
+; ; 	         := “grafo” <expresion> <expresion>
+; ;                  grafo-exp (v a)
+; ;
+; ;	         := “vertices” (<expresion>*)
+; ;                  vertices-exp (exps)
+; ;
+; ; 	         := “aristas” ( (<expresion> , <expresion>)* )
+; ;                  aristas-exp (exps)
+; ;
+; ; 	         := (<expresion> . <atributo-grafo> (<expresion>*)) ( . <atributo-grafo> (<expresion>*)) )
+; ;	            atributo-grafo-exp (exp1 atr exp2 atrs exps)
+; ;
+; ;	                 <atributo-grafo> := vertices atributo-vertices
+; ;	                                  := aristas atributo-aristas
+; ;	                                  := vecinos atributo-vecinos
+; ;	                                  := agregar-arista atributo-agregar-arista
+; ;	                                  := first atributo-first
+; ;	                                  := rest atributo-rest
+; ;	                                  := emptyG? atributo-emptyG?
+
 
 
 
@@ -724,8 +800,6 @@
 
 
 
-
-
 ;aplicar predicado booleano
 (define aplicar-pred-prim
   (lambda (prim args)
@@ -742,8 +816,8 @@
 
 
 
-;----------Definiendo ambientes y un ambiente inicial
 
+;----------Definiendo ambientes y un ambiente inicial
 ;Ambiente inicial
 
 (define ambiente-inicial
@@ -859,8 +933,6 @@
               (if (number? list-index-r)
                 (+ list-index-r 1)
                 #f))))))
-
-;----------Implementando booleanos
 
 ;----------Implementando procedimientos
 
@@ -1078,14 +1150,42 @@
 ;(interpretador)
 
 
+; =========== > Ejemplos de Scar&Parse < ==========
+
+;Expresion- id-exp
+(scan&parse "@valor")
 
 
 
+;Numeros
+(scan&parse "3")
+(scan&parse "3.14")
+(scan&parse "-2")
+(scan&parse "-2.3")
+
+
+;Primitivas Caracter
+(scan&parse "a")
+
+
+;Primitivas Cadenas
+(scan&parse "\"HolaMundo\"")
+(scan&parse "concat(\"cadena\", \"hola\")")
+(scan&parse "longitud(\"hola\")")
 
 
 
+;Primitiva Print
+(scan&parse "print(@a)")
 
 
+;Expresion- false-exp
+(scan&parse "false")
+
+;Expresion- true-exp
+(scan&parse "true")
+
+(scan&parse "[10 > 2]")
 
 
 
